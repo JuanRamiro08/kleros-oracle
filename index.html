@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kleros: The Oracle for Prediction Markets</title>
+<meta name="description" content="A technical brief on Kleros as the resolution layer for prediction markets: live since 2018, optimistic Reality.eth layer with a Kleros Court arbitration backstop.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;background:#16130E;overscroll-behavior:none;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  ::selection{background:#7C5BD0;color:#fff;}
+  @keyframes kbob{0%,100%{transform:translateY(0);}50%{transform:translateY(5px);}}
+  @keyframes kdrift{0%,100%{transform:translate(0,0);}50%{transform:translate(0,-3px);}}
+  [data-theme="dark"]{--bg:#16130E;--ink:#F1ECE1;--text:#C9C2B2;--muted:#A39C8B;--mono:#8E8675;--faint:#6B6454;--line:#2E2820;--card:#1C1812;--panel:#211A31;--panel-2:#261D38;--panel-border:#3C2F58;--panel-faint:rgba(245,240,230,0.035);--accent:#A98BE8;--accent-deep:#CBB9F2;--accent-soft:#B6A6DE;--accent-arrow:#6E5CA0;--arrow:#4A4435;--on-accent:#16130E;--header-bg:#221C14;--header-bg-accent:#2C2150;--on-header:#C9C2B2;--on-header-accent:#CBB9F2;--pos:#5FBE89;--warn:#D6904F;}
+  [data-theme="light"]{--bg:#F1ECE1;--ink:#1B1813;--text:#46413A;--muted:#5A5447;--mono:#8A8272;--faint:#A59C88;--line:#D8CFBE;--card:#FBF8F1;--panel:#EFEAF8;--panel-2:#F1ECFA;--panel-border:#DACFF0;--panel-faint:rgba(27,24,19,0.035);--accent:#4B2A93;--accent-deep:#2A1A5E;--accent-soft:#4B3A78;--accent-arrow:#B7A8DE;--arrow:#C3B9A6;--on-accent:#F5F1E8;--header-bg:#1B1813;--header-bg-accent:#2A1A5E;--on-header:#E7DFCE;--on-header-accent:#C7B2F0;--pos:#1F7A4D;--warn:#9A5A1E;}
+  [data-theme="dark"] [data-invert]{filter:invert(1) hue-rotate(180deg) brightness(1.06) !important;}
+  [data-nav]:hover [data-nav-label]{opacity:1 !important;}
+  a[href*="klerosboard"]{transition:border-color .3s,transform .3s;}
+  a[href*="klerosboard"]:hover{border-color:var(--accent) !important;transform:translateY(-2px);}
+  a[data-cta="primary"]:hover{background:var(--accent-deep) !important;}
+  a[data-cta="secondary"]:hover{background:var(--accent) !important;color:var(--on-accent) !important;}
+  /* ---------- responsive / mobile ---------- */
+  @media (max-width:820px){
+    [data-rail]{display:none !important;}
+    [data-meta]{display:none !important;}
+    [data-space]{padding-left:22px !important;padding-right:22px !important;}
+    [data-m="g3"]{grid-template-columns:1fr 1fr !important;gap:18px 28px !important;}
+    [data-m="g4"],[data-m="g4eco"]{grid-template-columns:1fr 1fr !important;gap:18px !important;}
+    [data-m="cards2"],[data-m="two"]{grid-template-columns:1fr !important;gap:14px !important;}
+    [data-m="flow"]{grid-template-columns:1fr !important;gap:10px !important;}
+    [data-m="flow"] > div:nth-child(2),[data-m="flow"] > div:nth-child(4){transform:rotate(90deg);width:max-content;margin:2px auto !important;}
+    [data-m="two"] > div:last-child{border-left:none !important;border-top:2px solid var(--accent);padding-left:0 !important;padding-top:16px;}
+    [data-uma-row],[data-m="uma"]{grid-template-columns:0.85fr 1fr 1fr !important;}
+    [data-hint-desk]{display:none !important;}
+    [data-hint-mob]{display:inline !important;}
+  }
+  @media (max-width:480px){
+    [data-m="g3"],[data-m="g4"]{grid-template-columns:1fr !important;}
+    [data-uma-row] > div,[data-m="uma"] > div{padding-left:9px !important;padding-right:9px !important;font-size:12.5px !important;}
+  }
+</style>
+</head>
+<body>
+<div id="dc-root" data-theme="dark" style="position:fixed;inset:0;background:var(--bg);background-image:radial-gradient(120% 80% at 80% -10%, rgba(75,42,147,0.05) 0%, rgba(75,42,147,0) 55%);color:var(--ink);font-family:'Newsreader',Georgia,serif;overflow:hidden;">
+
+  <!-- ================= CHROME ================= -->
+  <!-- top-left brand -->
+  <div data-no-advance style="position:fixed;top:clamp(20px,3.2vh,40px);left:clamp(22px,3vw,52px);z-index:60;display:flex;align-items:center;gap:11px;pointer-events:none;">
+    <img src="assets/kleros-mark.png" alt="Kleros" data-invert style="height:30px;width:auto;display:block;filter:saturate(0) contrast(1.05);">
+    <div style="line-height:1.15;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.22em;font-weight:600;color:var(--ink);">KLEROS</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.2em;color:var(--mono);">ORACLE · PREDICTION MARKETS</div>
+    </div>
+  </div>
+
+  <!-- top-right meta -->
+  <div data-no-advance data-meta style="position:fixed;top:clamp(20px,3.2vh,40px);right:clamp(22px,3vw,52px);z-index:60;text-align:right;line-height:1.3;pointer-events:none;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.18em;color:var(--ink);">A&nbsp;TECHNICAL&nbsp;BRIEF</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--mono);">VOL.&nbsp;I · MMXXVI · WITH&nbsp;RECEIPTS</div>
+  </div>
+
+  <!-- right nav rail -->
+  <nav data-no-advance data-rail style="position:fixed;top:50%;right:clamp(16px,2.4vw,40px);transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;gap:clamp(9px,1.5vh,16px);align-items:flex-end;">
+    <button data-nav="0" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;justify-content:flex-end;">
+      <span data-nav-label style="font-family:'Newsreader',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .25s;background:var(--bg);padding:3px 10px;border-radius:3px;box-shadow:0 0 0 1px var(--line);">Opening</span>
+      <span data-nav-mark style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mono);width:16px;text-align:right;">01</span>
+      <span data-nav-tick style="display:block;height:1.5px;width:11px;background:var(--ink);border-radius:2px;transition:width .4s,background .4s;"></span>
+    </button>
+    <button data-nav="1" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;justify-content:flex-end;">
+      <span data-nav-label style="font-family:'Newsreader',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .25s;background:var(--bg);padding:3px 10px;border-radius:3px;box-shadow:0 0 0 1px var(--line);">Proof</span>
+      <span data-nav-mark style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mono);width:16px;text-align:right;">02</span>
+      <span data-nav-tick style="display:block;height:1.5px;width:11px;background:var(--ink);border-radius:2px;transition:width .4s,background .4s;"></span>
+    </button>
+    <button data-nav="2" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;justify-content:flex-end;">
+      <span data-nav-label style="font-family:'Newsreader',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .25s;background:var(--bg);padding:3px 10px;border-radius:3px;box-shadow:0 0 0 1px var(--line);">Mechanism</span>
+      <span data-nav-mark style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mono);width:16px;text-align:right;">03</span>
+      <span data-nav-tick style="display:block;height:1.5px;width:11px;background:var(--ink);border-radius:2px;transition:width .4s,background .4s;"></span>
+    </button>
+    <button data-nav="3" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;justify-content:flex-end;">
+      <span data-nav-label style="font-family:'Newsreader',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .25s;background:var(--bg);padding:3px 10px;border-radius:3px;box-shadow:0 0 0 1px var(--line);">vs. UMA</span>
+      <span data-nav-mark style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mono);width:16px;text-align:right;">04</span>
+      <span data-nav-tick style="display:block;height:1.5px;width:11px;background:var(--ink);border-radius:2px;transition:width .4s,background .4s;"></span>
+    </button>
+    <button data-nav="4" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;justify-content:flex-end;">
+      <span data-nav-label style="font-family:'Newsreader',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .25s;background:var(--bg);padding:3px 10px;border-radius:3px;box-shadow:0 0 0 1px var(--line);">Cases</span>
+      <span data-nav-mark style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mono);width:16px;text-align:right;">05</span>
+      <span data-nav-tick style="display:block;height:1.5px;width:11px;background:var(--ink);border-radius:2px;transition:width .4s,background .4s;"></span>
+    </button>
+    <button data-nav="5" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;justify-content:flex-end;">
+      <span data-nav-label style="font-family:'Newsreader',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .25s;background:var(--bg);padding:3px 10px;border-radius:3px;box-shadow:0 0 0 1px var(--line);">Oracle failure</span>
+      <span data-nav-mark style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mono);width:16px;text-align:right;">06</span>
+      <span data-nav-tick style="display:block;height:1.5px;width:11px;background:var(--ink);border-radius:2px;transition:width .4s,background .4s;"></span>
+    </button>
+    <button data-nav="6" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;justify-content:flex-end;">
+      <span data-nav-label style="font-family:'Newsreader',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .25s;background:var(--bg);padding:3px 10px;border-radius:3px;box-shadow:0 0 0 1px var(--line);">Ecosystem</span>
+      <span data-nav-mark style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mono);width:16px;text-align:right;">07</span>
+      <span data-nav-tick style="display:block;height:1.5px;width:11px;background:var(--ink);border-radius:2px;transition:width .4s,background .4s;"></span>
+    </button>
+    <button data-nav="7" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;justify-content:flex-end;">
+      <span data-nav-label style="font-family:'Newsreader',serif;font-size:13px;font-style:italic;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .25s;background:var(--bg);padding:3px 10px;border-radius:3px;box-shadow:0 0 0 1px var(--line);">Integrate</span>
+      <span data-nav-mark style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mono);width:16px;text-align:right;">08</span>
+      <span data-nav-tick style="display:block;height:1.5px;width:11px;background:var(--ink);border-radius:2px;transition:width .4s,background .4s;"></span>
+    </button>
+  </nav>
+
+  <!-- bottom controls -->
+  <div data-no-advance style="position:fixed;bottom:clamp(18px,2.8vh,34px);left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:18px;">
+    <button data-prev style="all:unset;cursor:pointer;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:'Newsreader',serif;font-size:17px;line-height:1;transition:border-color .3s,color .3s;">‹</button>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.14em;color:var(--muted);min-width:56px;text-align:center;"><span data-counter-cur style="color:var(--ink);">01</span> / <span data-counter-tot>08</span></div>
+    <button data-next style="all:unset;cursor:pointer;width:34px;height:34px;border:1px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--accent);font-family:'Newsreader',serif;font-size:17px;line-height:1;transition:border-color .3s,color .3s,background .3s;">›</button>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:var(--faint);margin-left:6px;display:flex;align-items:center;gap:6px;"><span data-hint-desk>SCROLL · CLICK · </span><span data-hint-mob style="display:none;">SWIPE · TAP · </span><span style="display:inline-block;animation:kbob 1.8s ease-in-out infinite;">↓</span></div>
+  </div>
+
+  <!-- theme toggle -->
+  <button data-theme-toggle data-no-advance title="Toggle light / dark" style="position:fixed;left:clamp(22px,3vw,52px);bottom:clamp(16px,2.6vh,32px);z-index:61;width:34px;height:34px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;padding:0;">☀</button>
+
+  <!-- bottom progress hairline -->
+  <div data-no-advance style="position:fixed;left:0;bottom:0;width:100%;height:2px;background:var(--line);z-index:60;">
+    <div data-progress-fill style="height:100%;width:12.5%;background:var(--accent);transition:width .6s cubic-bezier(.22,.7,.2,1);"></div>
+  </div>
+
+  <!-- ================= SPACE 01 - HERO ================= -->
+  <section data-space data-screen-label="01 Hero" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;align-items:flex-start;padding:clamp(80px,11vh,130px) clamp(40px,8vw,150px);">
+
+    <div style="margin:auto;width:min(1060px,100%);">
+      <div data-r data-d="0" style="display:flex;align-items:center;gap:13px;margin-bottom:clamp(22px,4vh,46px);">
+        <span style="display:block;width:34px;height:1px;background:var(--accent);"></span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.24em;text-transform:uppercase;color:var(--accent);font-weight:500;">The resolution layer</span>
+      </div>
+      <h1 data-r data-d="1" style="margin:0;font-family:'Newsreader',serif;font-weight:400;font-size:clamp(46px,8.2vw,116px);line-height:0.96;letter-spacing:-0.022em;color:var(--ink);">
+        The oracle for<br>prediction <span style="font-style:italic;font-weight:300;color:var(--accent);">markets.</span>
+      </h1>
+      <p data-r data-d="2" style="margin:clamp(24px,4vh,40px) 0 0;max-width:60ch;font-family:'Newsreader',serif;font-weight:380;font-size:clamp(17px,1.55vw,23px);line-height:1.5;color:var(--text);">
+        A prediction market is only as trustworthy as the layer that resolves it. When two sides disagree on an outcome, Kleros settles it through a neutral, transparent due process that scales alongside the platform.
+      </p>
+      <div data-r data-d="3" data-m="g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,3vw,54px);margin-top:clamp(34px,6vh,64px);max-width:920px;">
+        <div style="border-top:1px solid var(--accent);padding-top:14px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Scalability</div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.42;color:var(--text);">A randomly drawn jury per case, from a subcourt suited to the topic. With 750+ jurors already staked, capacity is not a constraint.</div>
+        </div>
+        <div style="border-top:1px solid var(--accent);padding-top:14px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Due process</div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.42;color:var(--text);">Structured evidence, reasoned votes, and appeals that double the jury each round.</div>
+        </div>
+        <div style="border-top:1px solid var(--accent);padding-top:14px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Credible neutrality</div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.42;color:var(--text);">Contested outcomes decided by an independent, randomly selected jury.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPACE 02 - PROOF ================= -->
+  <section data-space data-screen-label="02 Proof" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;align-items:center;padding:clamp(80px,11vh,130px) clamp(40px,8vw,150px);">
+
+    <div style="margin:auto;width:min(1140px,100%);">
+      <div data-r data-d="0" style="display:flex;align-items:baseline;gap:14px;margin-bottom:clamp(20px,3.5vh,40px);">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;color:var(--mono);">§ 02</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);">Proof, before the pitch</span>
+      </div>
+      <h2 data-r data-d="1" style="margin:0 0 clamp(34px,6vh,60px);font-family:'Newsreader',serif;font-weight:400;font-size:clamp(34px,5.4vw,72px);line-height:1.0;letter-spacing:-0.02em;color:var(--ink);max-width:18ch;">
+        Live since 2018. <span style="font-style:italic;color:var(--accent);">Not a whitepaper.</span>
+      </h2>
+      <div data-m="g4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(18px,2.5vw,40px);border-top:1px solid var(--line);padding-top:clamp(20px,3vh,34px);">
+        <div data-r data-d="2" style="">
+          <div style="font-family:'Newsreader',serif;font-weight:300;font-size:clamp(38px,5.4vw,76px);line-height:0.95;letter-spacing:-0.02em;color:var(--ink);">2018</div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(13px,1vw,15px);line-height:1.4;color:var(--muted);margin-top:10px;">Running a live, on-chain arbitration system since.</div>
+        </div>
+        <div data-r data-d="3" style="">
+          <div style="font-family:'Newsreader',serif;font-weight:300;font-size:clamp(38px,5.4vw,76px);line-height:0.95;letter-spacing:-0.02em;color:var(--ink);">2020</div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(13px,1vw,15px);line-height:1.4;color:var(--muted);margin-top:10px;">Resolving prediction-market disputes. Omen (now Presagio) was first to integrate.</div>
+        </div>
+        <div data-r data-d="4" style="">
+          <div style="font-family:'Newsreader',serif;font-weight:300;font-size:clamp(38px,5.4vw,76px);line-height:0.95;letter-spacing:-0.02em;color:var(--accent);">2,653</div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(13px,1vw,15px);line-height:1.4;color:var(--muted);margin-top:10px;">Disputes resolved on-chain across Ethereum, Gnosis &amp; Arbitrum.</div>
+        </div>
+        <div data-r data-d="5" style="">
+          <div style="font-family:'Newsreader',serif;font-weight:300;font-size:clamp(38px,5.4vw,76px);line-height:0.95;letter-spacing:-0.02em;color:var(--ink);">+750</div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(13px,1vw,15px);line-height:1.4;color:var(--muted);margin-top:10px;">Jurors participating in Kleros arbitration.</div>
+        </div>
+      </div>
+      <div data-r data-d="6" style="display:flex;align-items:center;gap:clamp(20px,4vw,52px);margin-top:clamp(30px,5vh,56px);flex-wrap:wrap;">
+        <img src="assets/reality.png" alt="reality.eth" data-invert style="height:26px;width:auto;display:block;">
+        <span style="font-family:'Newsreader',serif;font-style:italic;font-size:15px;color:var(--muted);">five years of contested outcomes, settled by jury.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPACE 03 - LIFECYCLE ================= -->
+  <section data-space data-screen-label="03 Mechanism" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;align-items:center;padding:clamp(76px,10vh,120px) clamp(40px,7vw,140px);">
+
+    <div style="margin:auto;width:min(1180px,100%);">
+      <div data-r data-d="0" style="display:flex;align-items:baseline;gap:14px;margin-bottom:clamp(14px,2.4vh,26px);">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;color:var(--mono);">§ 03</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);">How it works</span>
+      </div>
+      <h2 data-r data-d="1" style="margin:0 0 clamp(12px,2.4vh,28px);font-family:'Newsreader',serif;font-weight:400;font-size:clamp(28px,4.2vw,56px);line-height:1.0;letter-spacing:-0.02em;color:var(--ink);">
+        One question. A <span style="font-style:italic;color:var(--accent);">two-layer</span> resolution.
+      </h2>
+
+      <!-- Band A: Reality.eth optimistic layer -->
+      <div data-r data-d="2" style="border:1px solid var(--line);background:var(--panel-faint);border-radius:4px;padding:clamp(13px,1.8vh,22px) clamp(18px,2.6vw,30px);">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--mono);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+          <span style="display:block;width:6px;height:6px;border-radius:50%;background:var(--mono);"></span>Reality.eth · optimistic layer
+        </div>
+        <div data-m="flow" style="display:grid;grid-template-columns:1fr auto 1fr auto 1.1fr;align-items:center;gap:clamp(10px,1.6vw,22px);">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:5px;">01</div>
+            <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(15px,1.2vw,18px);color:var(--ink);">Question posted</div>
+            <div style="font-family:'Newsreader',serif;font-size:13px;line-height:1.35;color:var(--muted);margin-top:3px;">With a bond, naming Kleros as the arbitrator.</div>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:20px;color:var(--arrow);">→</div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:5px;">02</div>
+            <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(15px,1.2vw,18px);color:var(--ink);">Bond escalation</div>
+            <div style="font-family:'Newsreader',serif;font-size:13px;line-height:1.35;color:var(--muted);margin-top:3px;">Anyone answers or challenges by doubling the bond. A wrong bond is forfeited.</div>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:20px;color:var(--arrow);">→</div>
+          <div style="background:var(--panel);border:1px solid var(--panel-border);border-radius:4px;padding:11px 14px;">
+            <div style="font-family:'Newsreader',serif;font-style:italic;font-size:clamp(14px,1.1vw,17px);color:var(--accent);line-height:1.3;">Most questions settle right here.</div>
+            <div style="font-family:'Newsreader',serif;font-size:13px;color:var(--muted);margin-top:3px;">No court needed.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- connector -->
+      <div data-r data-d="3" style="display:flex;align-items:center;gap:12px;padding:clamp(5px,1vh,11px) 0 clamp(5px,1vh,11px) clamp(18px,2.6vw,30px);">
+        <span style="font-family:'Newsreader',serif;font-size:22px;color:var(--accent);line-height:1;">↓</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--muted);">genuine disagreement · pay a fee to escalate</span>
+      </div>
+
+      <!-- Band B: Kleros Court -->
+      <div data-r data-d="4" style="border:1px solid var(--panel-border);background:var(--panel);border-radius:4px;padding:clamp(13px,1.8vh,22px) clamp(18px,2.6vw,30px);">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+          <span style="display:block;width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Kleros Court · arbitration
+        </div>
+        <div data-m="flow" style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:start;gap:clamp(10px,1.6vw,22px);">
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:5px;">03 · Sortition</div>
+            <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(15px,1.2vw,18px);color:var(--ink);">Jurors drawn</div>
+            <div style="font-family:'Newsreader',serif;font-size:13px;line-height:1.35;color:var(--muted);margin-top:3px;">Randomly, weighted by staked PNK, from the relevant subcourt.</div>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:20px;color:var(--accent-arrow);align-self:center;">→</div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:5px;">04 · Vote</div>
+            <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(15px,1.2vw,18px);color:var(--ink);">Evidence &amp; ruling</div>
+            <div style="font-family:'Newsreader',serif;font-size:13px;line-height:1.35;color:var(--muted);margin-top:3px;">Jurors vote independently. Coherent votes rewarded; incoherent ones slashed.</div>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:20px;color:var(--accent-arrow);align-self:center;">→</div>
+          <div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:5px;">05 · Settle</div>
+            <div style="font-family:'Newsreader',serif;font-weight:500;font-size:clamp(15px,1.2vw,18px);color:var(--ink);">Back to the market</div>
+            <div style="font-family:'Newsreader',serif;font-size:13px;line-height:1.35;color:var(--muted);margin-top:3px;">The ruling flows back to Reality.eth and settles the market.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appeal escalator + property -->
+      <div data-r data-d="5" data-m="two" style="display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(18px,3vw,44px);margin-top:clamp(16px,2.6vh,30px);align-items:center;">
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">06 · The appeal escalator</div>
+          <div style="display:flex;align-items:baseline;gap:clamp(8px,1.4vw,18px);font-family:'IBM Plex Mono',monospace;">
+            <span style="font-size:clamp(26px,3.4vw,44px);color:var(--ink);">3</span>
+            <span style="font-size:18px;color:var(--accent-arrow);">→</span>
+            <span style="font-size:clamp(26px,3.4vw,44px);color:var(--ink);">7</span>
+            <span style="font-size:18px;color:var(--accent-arrow);">→</span>
+            <span style="font-size:clamp(26px,3.4vw,44px);color:var(--accent);">15</span>
+            <span style="font-size:18px;color:var(--accent-arrow);">→</span>
+            <span style="font-size:clamp(26px,3.4vw,44px);color:var(--ink);">31</span>
+            <span style="font-size:18px;color:var(--accent-arrow);">→</span>
+            <span style="font-family:'Newsreader',serif;font-style:italic;font-size:22px;color:var(--faint);">…</span>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:14px;line-height:1.4;color:var(--muted);margin-top:8px;max-width:42ch;">Jurors per round. Each appeal doubles the jury, so overturning a well-evidenced answer becomes progressively more expensive.</div>
+        </div>
+        <div style="border-left:2px solid var(--accent);padding-left:clamp(14px,2vw,22px);">
+          <div style="font-family:'Newsreader',serif;font-style:italic;font-size:clamp(15px,1.25vw,19px);line-height:1.42;color:var(--accent-deep);">Jurors cannot be chosen, and they cannot choose their case. More PNK raises your <span style="text-decoration:underline;text-decoration-color:var(--accent-arrow);text-underline-offset:3px;">probability</span> of being drawn, but it never buys the seat.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPACE 04 - UMA ================= -->
+  <section data-space data-screen-label="04 vs UMA" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;align-items:center;padding:clamp(76px,10vh,120px) clamp(40px,7vw,140px);">
+
+    <div style="margin:auto;width:min(1160px,100%);">
+      <div data-r data-d="0" style="display:flex;align-items:baseline;gap:14px;margin-bottom:clamp(14px,2.4vh,26px);">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;color:var(--mono);">§ 04</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);">Why not UMA</span>
+      </div>
+      <div data-r data-d="1" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:clamp(18px,3vh,30px);">
+        <h2 style="margin:0;font-family:'Newsreader',serif;font-weight:400;font-size:clamp(30px,4.6vw,60px);line-height:1.0;letter-spacing:-0.02em;color:var(--ink);">Same game. <span style="font-style:italic;color:var(--accent);">Different table.</span></h2>
+        <p style="margin:0;max-width:42ch;font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.45;color:var(--muted);">Both reward voters for converging on the answer the panel is expected to choose, a Schelling point. The difference is <em>who sits on the panel.</em></p>
+      </div>
+
+      <div data-r data-d="2" style="border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--card);">
+        <div data-m="uma" style="display:grid;grid-template-columns:1.1fr 1.6fr 1.6fr;background:var(--header-bg);">
+          <div style="padding:13px clamp(14px,1.6vw,22px);font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--faint);"></div>
+          <div style="padding:13px clamp(14px,1.6vw,22px);font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:var(--on-header);">UMA</div>
+          <div style="padding:13px clamp(14px,1.6vw,22px);font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:var(--on-header-accent);background:var(--header-bg-accent);">Kleros</div>
+        </div>
+        <div data-uma-row style="display:grid;grid-template-columns:1.1fr 1.6fr 1.6fr;border-top:1px solid var(--line);">
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--mono);">Who answers</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--text);">The entire token-holder base votes on every dispute.</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--accent-deep);background:var(--panel-2);">A fixed-size jury, drawn per case from a topic-relevant subcourt.</div>
+        </div>
+        <div data-uma-row style="display:grid;grid-template-columns:1.1fr 1.6fr 1.6fr;border-top:1px solid var(--line);">
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--mono);">Who decides</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--text);">Token-weighted vote of holders.</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--accent-deep);background:var(--panel-2);">A random, stake-weighted jury draw, per case.</div>
+        </div>
+        <div data-uma-row style="display:grid;grid-template-columns:1.1fr 1.6fr 1.6fr;border-top:1px solid var(--line);">
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--mono);">Scalability</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--text);">Everyone votes on everything. As volume climbs, voters can't study each case.</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--accent-deep);background:var(--panel-2);">Each case gets a dedicated jury drawn from 750+ active jurors, so review depth holds as volume grows.</div>
+        </div>
+        <div data-uma-row style="display:grid;grid-template-columns:1.1fr 1.6fr 1.6fr;border-top:1px solid var(--line);">
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--mono);">Due process</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--text);">No appeal; escalation to the DVM, where ~9 wallets hold 50% of voting power.</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--accent-deep);background:var(--panel-2);">Evidence + appeals. The jury doubles each round, raising the cost to overturn a coherent answer.</div>
+        </div>
+        <div data-uma-row style="display:grid;grid-template-columns:1.1fr 1.6fr 1.6fr;border-top:1px solid var(--line);">
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--mono);">Speed</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--text);">~2 days.</div>
+          <div style="padding:11px clamp(14px,1.6vw,22px);font-family:'Newsreader',serif;font-size:clamp(14px,1.05vw,16px);line-height:1.4;color:var(--accent-deep);background:var(--panel-2);">Most cases resolve in a day; heavily appealed cases can take a couple of weeks.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPACE 05 - CASES ================= -->
+  <section data-space data-screen-label="05 Cases" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;align-items:center;padding:clamp(76px,10vh,120px) clamp(40px,7vw,140px);">
+
+    <div style="margin:auto;width:min(1180px,100%);">
+      <div data-r data-d="0" style="display:flex;align-items:baseline;gap:14px;margin-bottom:clamp(8px,1.6vh,18px);">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;color:var(--mono);">§ 05</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);">On real money</span>
+      </div>
+      <h2 data-r data-d="1" style="margin:0 0 clamp(20px,3.4vh,36px);font-family:'Newsreader',serif;font-weight:400;font-size:clamp(30px,4.6vw,60px);line-height:1.0;letter-spacing:-0.02em;color:var(--ink);">
+        Four disputes, settled by a <span style="font-style:italic;color:var(--accent);">drawn jury.</span>
+      </h2>
+      <div data-m="cards2" style="display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(14px,1.8vw,22px);">
+        <a data-r data-d="2" href="https://klerosboard.com/1/cases/532" target="_blank" rel="noopener" style="text-decoration:none;display:block;border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,2vw,24px);transition:border-color .3s,transform .3s;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;color:var(--accent);">#532 · OMEN / PRESAGIO</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--faint);">↗ KLEROSBOARD</span>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(17px,1.5vw,22px);line-height:1.3;color:var(--ink);margin:12px 0 14px;">Will Joe Biden win the 2020 US presidential election?</div>
+          <div style="display:flex;gap:18px;align-items:baseline;border-top:1px solid var(--line);padding-top:12px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mono);">General Court · 500 votes</span>
+            <span style="font-family:'Newsreader',serif;font-style:italic;font-size:16px;color:var(--pos);margin-left:auto;">Ruled Yes</span>
+          </div>
+        </a>
+        <a data-r data-d="3" href="https://klerosboard.com/1/cases/302" target="_blank" rel="noopener" style="text-decoration:none;display:block;border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,2vw,24px);transition:border-color .3s,transform .3s;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;color:var(--accent);">#302 · OMEN / PRESAGIO</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--faint);">↗ KLEROSBOARD</span>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(17px,1.5vw,22px);line-height:1.3;color:var(--ink);margin:12px 0 14px;">≥1,000 reported US COVID deaths in a single day, first half of July 2020?</div>
+          <div style="display:flex;gap:18px;align-items:baseline;border-top:1px solid var(--line);padding-top:12px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mono);">General Court · 500 votes</span>
+            <span style="font-family:'Newsreader',serif;font-style:italic;font-size:16px;color:var(--pos);margin-left:auto;">Ruled Yes</span>
+          </div>
+        </a>
+        <a data-r data-d="4" href="https://klerosboard.com/100/cases/1661" target="_blank" rel="noopener" style="text-decoration:none;display:block;border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,2vw,24px);transition:border-color .3s,transform .3s;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;color:var(--accent);">#1661 · SEER</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--faint);">↗ KLEROSBOARD</span>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(17px,1.5vw,22px);line-height:1.3;color:var(--ink);margin:12px 0 14px;">Was Zelenskyy photographed or videotaped wearing a suit between May 22 and June 30, 2025?</div>
+          <div style="display:flex;gap:18px;align-items:baseline;border-top:1px solid var(--line);padding-top:12px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mono);">General Court · 31 votes</span>
+            <span style="font-family:'Newsreader',serif;font-style:italic;font-size:16px;color:var(--pos);margin-left:auto;">Ruled Yes</span>
+          </div>
+        </a>
+        <a data-r data-d="5" href="https://klerosboard.com/100/cases/1657" target="_blank" rel="noopener" style="text-decoration:none;display:block;border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,2vw,24px);transition:border-color .3s,transform .3s;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;color:var(--accent);">#1657 · SEER</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--faint);">↗ KLEROSBOARD</span>
+          </div>
+          <div style="font-family:'Newsreader',serif;font-size:clamp(17px,1.5vw,22px);line-height:1.3;color:var(--ink);margin:12px 0 14px;">Winner of the run-off in the 2024 Romanian presidential election?</div>
+          <div style="display:flex;gap:18px;align-items:baseline;border-top:1px solid var(--line);padding-top:12px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mono);">General Court · 31 votes</span>
+            <span style="font-family:'Newsreader',serif;font-style:italic;font-size:16px;color:var(--warn);margin-left:auto;">Resolved too soon, run-off annulled</span>
+          </div>
+        </a>
+      </div>
+      <div data-r data-d="6" style="font-family:'Newsreader',serif;font-style:italic;font-size:14px;color:var(--mono);margin-top:16px;">The hard cases, including the one where the right call was that the market resolved too soon. Every ruling is a live, on-chain link.</div>
+    </div>
+  </section>
+
+  <!-- ================= SPACE 06 - ORACLE FAILURE ================= -->
+  <section data-space data-screen-label="06 Oracle failure" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;align-items:center;padding:clamp(76px,10vh,120px) clamp(40px,7vw,140px);">
+
+    <div style="margin:auto;width:min(1080px,100%);">
+      <div data-r data-d="0" style="display:flex;align-items:baseline;gap:14px;margin-bottom:clamp(16px,2.6vh,28px);">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;color:var(--mono);">§ 06</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);">When oracles fail</span>
+      </div>
+      <h2 data-r data-d="1" style="margin:0 0 clamp(20px,3.4vh,34px);font-family:'Newsreader',serif;font-weight:400;font-size:clamp(30px,4.8vw,62px);line-height:1.02;letter-spacing:-0.02em;color:var(--ink);max-width:20ch;">
+        Not every contested outcome is an <span style="font-style:italic;color:var(--accent);">oracle failure.</span>
+      </h2>
+      <div data-m="two" style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);align-items:start;">
+        <div data-r data-d="2" style="">
+          <p style="margin:0 0 18px;font-family:'Newsreader',serif;font-size:clamp(16px,1.3vw,20px);line-height:1.5;color:var(--text);">Some contested Polymarket outcomes trace to the market's own rules or a late clarification, not the oracle. But the oracle layer can be a structural weak point in its own right.</p>
+          <blockquote style="margin:0;border-left:2px solid var(--warn);padding:4px 0 4px 18px;">
+            <span style="font-family:'Newsreader',serif;font-style:italic;font-size:clamp(16px,1.35vw,21px);line-height:1.42;color:var(--ink);">On UMA, voting power is concentrated in a handful of large holders, and a majority of active voters are linkable to Polymarket trading accounts, a direct positional conflict in several markets.</span>
+          </blockquote>
+        </div>
+        <div data-r data-d="3" style="background:var(--panel);border:1px solid var(--panel-border);border-radius:4px;padding:clamp(20px,2.6vw,30px);">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">Under Kleros</div>
+          <p style="margin:0 0 14px;font-family:'Newsreader',serif;font-size:clamp(16px,1.3vw,20px);line-height:1.5;color:var(--accent-deep);">25% of stake is a <strong style="font-weight:600;">25% chance of being drawn</strong> as a juror, not 25% of the verdict.</p>
+          <p style="margin:0;font-family:'Newsreader',serif;font-size:clamp(15px,1.2vw,18px);line-height:1.5;color:var(--accent-soft);">And every appeal raises the cost of holding a dishonest result, making concentration <em>expensive</em> rather than decisive.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPACE 07 - ECOSYSTEM ================= -->
+  <section data-space data-screen-label="07 Ecosystem" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;align-items:center;padding:clamp(76px,10vh,120px) clamp(40px,7vw,140px);">
+
+    <div style="margin:auto;width:min(1180px,100%);">
+      <div data-r data-d="0" style="display:flex;align-items:baseline;gap:14px;margin-bottom:clamp(8px,1.6vh,18px);">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;color:var(--mono);">§ 07</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);">Who's already in</span>
+      </div>
+      <h2 data-r data-d="1" style="margin:0 0 clamp(22px,3.6vh,40px);font-family:'Newsreader',serif;font-weight:400;font-size:clamp(30px,4.6vw,60px);line-height:1.0;letter-spacing:-0.02em;color:var(--ink);">
+        Prediction markets resolving with <span style="font-style:italic;color:var(--accent);">Kleros.</span>
+      </h2>
+      <div data-m="g4eco" style="display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,1.6vw,20px);">
+        <div data-r data-d="2" style="border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,1.8vw,22px);display:flex;flex-direction:column;gap:12px;min-height:148px;">
+          <div style="height:40px;display:flex;align-items:center;"><img src="assets/seer.png" alt="Seer" style="height:38px;width:auto;"></div>
+          <div style="font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink);">Seer</div>
+          <div style="font-family:'Newsreader',serif;font-size:13.5px;line-height:1.38;color:var(--muted);margin-top:auto;">Decentralization, composability, and community-driven resolution.</div>
+        </div>
+        <div data-r data-d="3" style="border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,1.8vw,22px);display:flex;flex-direction:column;gap:12px;min-height:148px;">
+          <div style="height:40px;display:flex;align-items:center;"><img src="assets/omen.png" alt="Omen / Presagio" style="height:40px;width:auto;"></div>
+          <div style="font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink);">Omen / Presagio</div>
+          <div style="font-family:'Newsreader',serif;font-size:13.5px;line-height:1.38;color:var(--muted);margin-top:auto;">Built on Gnosis' Conditional Tokens Framework. First to integrate, 2020.</div>
+        </div>
+        <div data-r data-d="4" style="border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,1.8vw,22px);display:flex;flex-direction:column;gap:12px;min-height:148px;">
+          <div style="height:40px;display:flex;align-items:center;"><img src="assets/foresight.png" alt="Foresight" style="height:40px;width:auto;"></div>
+          <div style="font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink);">Foresight</div>
+          <div style="font-family:'Newsreader',serif;font-size:13.5px;line-height:1.38;color:var(--muted);margin-top:auto;">Kleros's own forecasting experiment, running on Seer.</div>
+        </div>
+        <div data-r data-d="5" style="border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,1.8vw,22px);display:flex;flex-direction:column;gap:12px;min-height:148px;">
+          <div style="height:40px;display:flex;align-items:center;"><img src="assets/precog.png" alt="Precog" style="height:40px;width:auto;"></div>
+          <div style="font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink);">Precog</div>
+          <div style="font-family:'Newsreader',serif;font-size:13.5px;line-height:1.38;color:var(--muted);margin-top:auto;">Collective intelligence for human and AI participants.</div>
+        </div>
+        <div data-r data-d="6" style="border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,1.8vw,22px);display:flex;flex-direction:column;gap:12px;min-height:148px;">
+          <div style="height:40px;display:flex;align-items:center;"><img src="assets/futarchy.png" alt="Futarchy.fi" data-invert style="height:34px;width:auto;"></div>
+          <div style="font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink);">Futarchy.fi</div>
+          <div style="font-family:'Newsreader',serif;font-size:13.5px;line-height:1.38;color:var(--muted);margin-top:auto;">Prediction markets &amp; conditional tokens for DAO decision-making.</div>
+        </div>
+        <div data-r data-d="7" style="border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,1.8vw,22px);display:flex;flex-direction:column;gap:12px;min-height:148px;">
+          <div style="height:40px;display:flex;align-items:center;"><img src="assets/deepfunding.png" alt="Deep Funding" style="height:40px;width:auto;border-radius:6px;"></div>
+          <div style="font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink);">Deep Funding</div>
+          <div style="font-family:'Newsreader',serif;font-size:13.5px;line-height:1.38;color:var(--muted);margin-top:auto;">Allocation proposals run through conditional prediction markets.</div>
+        </div>
+        <div data-r data-d="8" style="border:1px solid var(--line);background:var(--card);border-radius:4px;padding:clamp(16px,1.8vw,22px);display:flex;flex-direction:column;gap:12px;min-height:148px;">
+          <div style="height:40px;display:flex;align-items:center;"><img src="assets/ringo.jpg" alt="Ringo" style="height:40px;width:auto;border-radius:9px;"></div>
+          <div style="font-family:'Newsreader',serif;font-weight:500;font-size:17px;color:var(--ink);">Ringo</div>
+          <div style="font-family:'Newsreader',serif;font-size:13.5px;line-height:1.38;color:var(--muted);margin-top:auto;">Open markets on real-world events, integrated with X.</div>
+        </div>
+        <div data-r data-d="9" style="border:1px dashed var(--line);background:transparent;border-radius:4px;padding:clamp(16px,1.8vw,22px);display:flex;flex-direction:column;justify-content:center;min-height:148px;">
+          <div style="font-family:'Newsreader',serif;font-style:italic;font-size:18px;color:var(--mono);line-height:1.35;">Resolving disputes since 2020.</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:var(--faint);margin-top:8px;">SEER · GNOSIS · ETHEREUM</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPACE 08 - CTA ================= -->
+  <section data-space data-screen-label="08 Integrate" style="position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;align-items:center;padding:clamp(80px,11vh,130px) clamp(40px,8vw,150px);">
+
+    <div style="margin:auto;width:min(900px,100%);text-align:center;">
+      <div data-r data-d="0" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:clamp(20px,3.5vh,34px);">§ 08 · Integrate</div>
+      <h2 data-r data-d="1" style="margin:0 0 clamp(20px,3.4vh,30px);font-family:'Newsreader',serif;font-weight:400;font-size:clamp(40px,6.6vw,90px);line-height:0.98;letter-spacing:-0.022em;color:var(--ink);">
+        Make Kleros your<br><span style="font-style:italic;color:var(--accent);">resolution layer.</span>
+      </h2>
+      <p data-r data-d="2" style="margin:0 auto clamp(34px,5.5vh,52px);max-width:54ch;font-family:'Newsreader',serif;font-size:clamp(16px,1.4vw,21px);line-height:1.5;color:var(--text);">
+        Plug Reality.eth and Kleros into your market in a few steps. Optimistic by default, with a credible court behind the hard cases.
+      </p>
+      <div data-r data-d="3" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="https://docs.kleros.io/products/oracle" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:var(--on-accent);font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;padding:15px 26px;border-radius:3px;transition:background .3s;" data-cta="primary">Oracle product docs <span style="font-size:15px;">↗</span></a>
+        <a href="https://docs.kleros.io/integrations/types-of-integrations/3.-kleros-oracle-integration" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;background:transparent;color:var(--accent);border:1px solid var(--accent);font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;padding:15px 26px;border-radius:3px;transition:background .3s,color .3s;" data-cta="secondary">Integration guide <span style="font-size:15px;">↗</span></a>
+      </div>
+      <div data-r data-d="4" style="margin-top:clamp(34px,5.5vh,56px);padding-top:clamp(24px,3.5vh,34px);border-top:1px solid var(--line);max-width:62ch;margin-left:auto;margin-right:auto;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Available on</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;line-height:1.7;color:var(--muted);">Ethereum · Arbitrum · Gnosis · Polygon · Base · Optimism · Unichain<br><span style="color:var(--faint);">Solana (integration in progress)</span></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.04em;color:var(--muted);margin-top:18px;">Contact <a href="mailto:juanrah@kleros.io" style="color:var(--accent);text-decoration:none;">juanrah@kleros.io</a> · <a href="https://t.me/juanrah" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">t.me/juanrah</a></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.1em;color:var(--faint);margin-top:12px;"><a href="https://justusekleros.netlify.app/" target="_blank" rel="noopener" style="color:var(--faint);text-decoration:underline;text-underline-offset:2px;">Vitalik's take on Kleros ↗</a></div>
+      </div>
+      <div data-r data-d="5" style="margin-top:clamp(40px,7vh,72px);display:flex;flex-direction:column;align-items:center;gap:14px;">
+        <img src="assets/secured-by-kleros.png" alt="Secured by Kleros" data-invert style="height:22px;width:auto;opacity:0.9;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--faint);">KLEROS · ORACLE FOR PREDICTION MARKETS · MMXXVI</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+<script>
+
+class Deck {
+  componentDidMount() {
+    const root = document.getElementById('dc-root');
+    if (!root) return;
+    this.root = root;
+    this.sections = Array.from(root.querySelectorAll('[data-space]'));
+    this.total = this.sections.length;
+    this.dots = Array.from(root.querySelectorAll('[data-nav]'));
+    this.fill = root.querySelector('[data-progress-fill]');
+    this.curEl = root.querySelector('[data-counter-cur]');
+    this.totEl = root.querySelector('[data-counter-tot]');
+    if (this.totEl) this.totEl.textContent = String(this.total).padStart(2, '0');
+
+    this.animating = false;
+    this.lockUntil = 0;
+    this.wheelAcc = 0;
+    this.index = this.readSaved();
+    this.themeBtn = root.querySelector('[data-theme-toggle]');
+    this.applyTheme(this.readTheme());
+
+    this.sections.forEach((s, i) => {
+      s.style.transition = 'none';
+      if (i === this.index) {
+        s.style.opacity = '1';
+        s.style.transform = 'none';
+        s.style.pointerEvents = 'auto';
+        s.style.zIndex = '2';
+      } else {
+        s.style.opacity = '0';
+        s.style.transform = 'translateY(' + (i < this.index ? -34 : 34) + 'px)';
+        s.style.pointerEvents = 'none';
+        s.style.zIndex = '1';
+      }
+    });
+    void root.offsetWidth;
+    this.revealChildren(this.sections[this.index]);
+    this.updateChrome();
+
+    this._onWheel = this.onWheel.bind(this);
+    this._onKey = this.onKey.bind(this);
+    this._onTS = this.onTouchStart.bind(this);
+    this._onTE = this.onTouchEnd.bind(this);
+    this._onClick = this.onClick.bind(this);
+    window.addEventListener('wheel', this._onWheel, { passive: false });
+    window.addEventListener('keydown', this._onKey);
+    window.addEventListener('touchstart', this._onTS, { passive: true });
+    window.addEventListener('touchend', this._onTE, { passive: true });
+    root.addEventListener('click', this._onClick);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('wheel', this._onWheel);
+    window.removeEventListener('keydown', this._onKey);
+    window.removeEventListener('touchstart', this._onTS);
+    window.removeEventListener('touchend', this._onTE);
+    if (this.root) this.root.removeEventListener('click', this._onClick);
+    clearTimeout(this._t);
+  }
+
+  readSaved() {
+    try {
+      const v = parseInt(localStorage.getItem('kleros-oracle-space'), 10);
+      if (!isNaN(v) && v >= 0 && v < this.total) return v;
+    } catch (e) {}
+    return 0;
+  }
+  save() {
+    try { localStorage.setItem('kleros-oracle-space', String(this.index)); } catch (e) {}
+  }
+
+  // True when the active slide is taller than the viewport and can still scroll
+  // in the given direction (so tall slides scroll internally before navigating).
+  canScrollSlide(dir) {
+    const sec = this.sections[this.index];
+    if (!sec) return false;
+    if (sec.scrollHeight <= sec.clientHeight + 2) return false;
+    if (dir > 0) return sec.scrollTop + sec.clientHeight < sec.scrollHeight - 1;
+    return sec.scrollTop > 1;
+  }
+
+  onWheel(e) {
+    const now = Date.now();
+    const dir = e.deltaY > 0 ? 1 : -1;
+    // Let an overflowing slide scroll natively until it hits the edge.
+    if (this.canScrollSlide(dir)) { this.wheelAcc = 0; return; }
+    e.preventDefault();
+    if (this.animating || now < this.lockUntil) { this.wheelAcc = 0; return; }
+    if (Math.abs(e.deltaY) < 6) return;
+    this.wheelAcc += e.deltaY;
+    if (Math.abs(this.wheelAcc) < 22) return;
+    this.wheelAcc = 0;
+    this.lockUntil = now + 140;
+    this.go(dir);
+  }
+
+  onKey(e) {
+    const k = e.key;
+    if (['ArrowDown', 'ArrowRight', 'PageDown', ' '].indexOf(k) !== -1) { e.preventDefault(); this.go(1); }
+    else if (['ArrowUp', 'ArrowLeft', 'PageUp'].indexOf(k) !== -1) { e.preventDefault(); this.go(-1); }
+    else if (k === 'Home') { e.preventDefault(); this.goTo(0); }
+    else if (k === 'End') { e.preventDefault(); this.goTo(this.total - 1); }
+  }
+
+  onTouchStart(e) {
+    this.touchY = e.touches[0].clientY;
+    this.touchX = e.touches[0].clientX;
+  }
+  onTouchEnd(e) {
+    if (this.touchY == null) return;
+    const dy = e.changedTouches[0].clientY - this.touchY;
+    const dx = e.changedTouches[0].clientX - this.touchX;
+    if (Math.abs(dy) > 48 && Math.abs(dy) > Math.abs(dx)) {
+      const dir = dy < 0 ? 1 : -1;
+      if (!this.canScrollSlide(dir)) this.go(dir);
+    }
+    this.touchY = null;
+  }
+
+  readTheme() {
+    try { const v = localStorage.getItem('kleros-oracle-theme'); if (v === 'light' || v === 'dark') return v; } catch (e) {}
+    return 'dark';
+  }
+  applyTheme(t) {
+    this.theme = t;
+    if (this.root) this.root.setAttribute('data-theme', t);
+    if (this.themeBtn) this.themeBtn.textContent = t === 'dark' ? '\u2600' : '\u263E';
+    try { localStorage.setItem('kleros-oracle-theme', t); } catch (e) {}
+  }
+  toggleTheme() { this.applyTheme(this.theme === 'dark' ? 'light' : 'dark'); }
+
+  onClick(e) {
+    const t = e.target;
+    if (!t.closest) return;
+    if (t.closest('[data-theme-toggle]')) { this.toggleTheme(); return; }
+    const nav = t.closest('[data-nav]');
+    if (nav) { this.goTo(parseInt(nav.getAttribute('data-nav'), 10)); return; }
+    if (t.closest('[data-next]')) { this.go(1); return; }
+    if (t.closest('[data-prev]')) { this.go(-1); return; }
+    if (t.closest('a,button,[data-no-advance]')) return;
+    // Don't let a tap skip content on a slide that can still scroll down.
+    if (this.canScrollSlide(1)) return;
+    if (this.index < this.total - 1) this.go(1);
+  }
+
+  go(dir) { this.goTo(this.index + dir); }
+
+  goTo(t) {
+    t = Math.max(0, Math.min(this.total - 1, t));
+    if (t === this.index || this.animating) return;
+    const dir = t > this.index ? 1 : -1;
+    const out = this.sections[this.index];
+    const inc = this.sections[t];
+    this.animating = true;
+    this.lockUntil = Date.now() + 780;
+
+    out.style.transition = 'opacity .5s ease, transform .72s cubic-bezier(.22,.7,.2,1)';
+    out.style.opacity = '0';
+    out.style.transform = 'translateY(' + (-dir * 34) + 'px)';
+    out.style.pointerEvents = 'none';
+    out.style.zIndex = '1';
+
+    inc.scrollTop = 0;
+    inc.style.transition = 'none';
+    inc.style.transform = 'translateY(' + (dir * 40) + 'px)';
+    inc.style.opacity = '0';
+    inc.style.pointerEvents = 'auto';
+    inc.style.zIndex = '2';
+    void inc.offsetWidth;
+    inc.style.transition = 'opacity .62s ease, transform .82s cubic-bezier(.22,.7,.2,1)';
+    inc.style.opacity = '1';
+    inc.style.transform = 'translateY(0)';
+    this.revealChildren(inc);
+
+    this.index = t;
+    this.save();
+    this.updateChrome();
+    clearTimeout(this._t);
+    this._t = setTimeout(() => {
+      this.animating = false;
+      // Force-settle both sections to their final states. Clearing transitions snaps
+      // them to the inline targets even if the animation timeline was paused/throttled.
+      inc.style.transition = 'none';
+      inc.style.opacity = '1';
+      inc.style.transform = 'none';
+      if (out !== inc) {
+        out.style.transition = 'none';
+        out.style.opacity = '0';
+        out.style.transform = 'none';
+        out.style.pointerEvents = 'none';
+      }
+    }, 820);
+  }
+
+  revealChildren(section) {
+    const rs = Array.from(section.querySelectorAll('[data-r]'));
+    // Resting DOM state is visible. The staggered entrance is a progressive
+    // enhancement: skip it for hidden tabs, and net it with a timer so content can
+    // never get stuck invisible if the animation timeline is paused/throttled.
+    const hidden = typeof document !== 'undefined' && document.visibilityState === 'hidden';
+    rs.forEach((el, i) => {
+      if (el._anim) { try { el._anim.cancel(); } catch (e) {} el._anim = null; }
+      if (el._safety) { clearTimeout(el._safety); el._safety = null; }
+      if (hidden) return;
+      const from = el.getAttribute('data-from') || 'translateY(22px)';
+      const d = parseInt(el.getAttribute('data-d') || i, 10);
+      const delay = 90 + d * 60;
+      const a = el.animate(
+        [{ opacity: 0, transform: from }, { opacity: 1, transform: 'none' }],
+        { duration: 720, delay: delay, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'both' }
+      );
+      el._anim = a;
+      el._safety = setTimeout(function () {
+        try { if (el._anim === a && a.playState !== 'finished') a.cancel(); } catch (e) {}
+      }, delay + 760 + 220);
+    });
+  }
+
+  updateChrome() {
+    const pct = this.total > 1 ? ((this.index + 1) / this.total) * 100 : 100;
+    if (this.fill) this.fill.style.width = pct + '%';
+    if (this.curEl) this.curEl.textContent = String(this.index + 1).padStart(2, '0');
+    this.dots.forEach((n, i) => {
+      const on = i === this.index;
+      const label = n.querySelector('[data-nav-label]');
+      const mark = n.querySelector('[data-nav-mark]');
+      const tick = n.querySelector('[data-nav-tick]');
+      // Labels are hover-only now, so they never overlap slide content. The active
+      // item is shown by its highlighted number + extended tick instead.
+      if (label) label.style.opacity = '0';
+      if (mark) mark.style.color = on ? 'var(--accent)' : 'var(--mono)';
+      if (tick) {
+        tick.style.width = on ? '26px' : '11px';
+        tick.style.background = on ? 'var(--accent)' : 'var(--arrow)';
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () { new Deck().componentDidMount(); });
+</script>
+</body>
+</html>
